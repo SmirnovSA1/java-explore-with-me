@@ -9,7 +9,6 @@ import ru.practicum.compilation.dto.UpdatedCompilationDto;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
-import ru.practicum.user.mapper.UserMapper;
 
 import java.util.List;
 
