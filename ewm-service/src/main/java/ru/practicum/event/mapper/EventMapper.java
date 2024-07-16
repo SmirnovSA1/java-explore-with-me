@@ -149,7 +149,9 @@ public interface EventMapper {
     @Mapping(target = "publishedOn",
             expression = "java(event.getPublishedOn() != null ?\n" +
                     " event.getPublishedOn().format(java.time.format.DateTimeFormatter.ofPattern(ru.practicum.Constant.PATTERN_DATE)) : null)")
+    @Mapping(target = "state", source = "event.eventState")
     EventDto toEventDto(Event event);
 
+    @Mapping(target = "state", source = "event.eventState")
     List<EventDto> toEventDtoList(List<Event> event);
 }
