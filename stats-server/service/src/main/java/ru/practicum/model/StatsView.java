@@ -2,6 +2,7 @@ package ru.practicum.model;
 
 import lombok.*;
 
+@Builder
 @Getter
 @Setter
 @EqualsAndHashCode

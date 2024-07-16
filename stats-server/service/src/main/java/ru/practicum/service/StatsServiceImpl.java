@@ -12,6 +12,7 @@ import ru.practicum.model.StatsView;
 import ru.practicum.repository.StatsRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -33,21 +34,24 @@ public class StatsServiceImpl implements StatsService {
         checkTime(start, end);
         List<StatsView> viewStats;
 
-        if (uris == null || uris.isEmpty()) {
+        if (uris == null || uris.isEmpty() || uris.get(0).equals("/events")) {
             viewStats = Boolean.TRUE.equals(unique)
                     ? statsRepository.findAllByDateBetweenAndUniqueIp(start, end)
                     : statsRepository.findAllByDateBetweenStartAndEnd(start, end);
-        } else {
-            viewStats = Boolean.TRUE.equals(unique)
-                    ? statsRepository.findAllByDateBetweenAndUriAndUniqueIp(start, end, uris)
-                    : statsRepository.findAllByDateBetweenAndUri(start, end, uris);
+            return statsMapper.toStatsViewDtoList(viewStats);
         }
+
+        viewStats = Boolean.TRUE.equals(unique)
+                ? statsRepository.findAllByDateBetweenAndUriAndUniqueIp(start, end, uris)
+                : statsRepository.findAllByDateBetweenAndUri(start, end, uris);
+
         return statsMapper.toStatsViewDtoList(viewStats);
     }
 
     private void checkTime(LocalDateTime start, LocalDateTime end) {
-        if (end.isBefore(start) || end.equals(start)) {
-            throw new EndTimeBeforeStartTimeException("Дата окончания не может быть раньше даты начала");
+        if (end.isBefore(start)) {
+            throw new EndTimeBeforeStartTimeException("Дата окончания не может быть раньше даты начала",
+                    Collections.singletonList("Некорректные данные"));
         }
     }
 }
