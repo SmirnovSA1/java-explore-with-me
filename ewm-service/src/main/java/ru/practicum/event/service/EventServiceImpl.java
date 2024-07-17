@@ -20,6 +20,7 @@ import ru.practicum.event.repository.SearchEventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
+import ru.practicum.location.mapper.LocationMapper;
 import ru.practicum.location.model.Location;
 import ru.practicum.location.repository.LocationRepository;
 import ru.practicum.user.model.User;
@@ -48,6 +49,7 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final StatsClient statsClient;
     private final EventMapper eventMapper;
+    private final LocationMapper locationMapper;
 
     @Transactional
     @Override
@@ -56,8 +58,8 @@ public class EventServiceImpl implements EventService {
 
         User initiator = getUser(userId);
         Category category = getCategory(newEventDto.getCategory());
-        Location location = checkAndSaveLocation(newEventDto.getLocation());
-        Event event = eventMapper.toEvent(newEventDto, category, initiator, location);
+        Event event = eventMapper.toEvent(newEventDto, category, initiator);
+        checkAndSaveLocation(event.getLocation());
         Event createdEvent = eventRepository.save(event);
 
         return eventMapper.toEventDto(createdEvent);
@@ -72,16 +74,16 @@ public class EventServiceImpl implements EventService {
         getErrorIfTimeBeforeStartsIsLessThen(request.getEventDate(), 2);
         getErrorIfTimeBeforeStartsIsLessThen(oldEvent.getEventDate(), 2);
 
-        Location location = checkAndSaveLocation(request.getLocation());
+        checkAndSaveLocation(locationMapper.toLocation(request.getLocation()));
         Category category = request.getCategory() != null
                 ? getCategory(request.getCategory()) : oldEvent.getCategory();
 
         if (CANCEL_REVIEW.equals(request.getStateAction())) {
-            oldEvent = eventMapper.toUpdatedOwnerEvent(oldEvent, request, category, location);
+            oldEvent = eventMapper.toUpdatedOwnerEvent(oldEvent, request, category);
             oldEvent.setEventState(CANCELED);
             return eventMapper.toEventDto(eventRepository.save(oldEvent));
         } else if (SEND_TO_REVIEW.equals(request.getStateAction())) {
-            oldEvent = eventMapper.toUpdatedOwnerEvent(oldEvent, request, category, location);
+            oldEvent = eventMapper.toUpdatedOwnerEvent(oldEvent, request, category);
             oldEvent.setEventState(PENDING);
         }
 
@@ -94,15 +96,15 @@ public class EventServiceImpl implements EventService {
         Event event = getEvent(eventId);
         Category category = request.getCategory() != null
                 ? getCategory(request.getCategory()) : event.getCategory();
-        Location location = checkAndSaveLocation(request.getLocation());
-        request.setLocation(location);
+        Location location = checkAndSaveLocation(locationMapper.toLocation(request.getLocation()));
+        request.setLocation(locationMapper.toLocationDto(location));
 
         getErrorIfTimeBeforeStartsIsLessThen(request.getEventDate(), 1);
         getErrorIfTimeBeforeStartsIsLessThen(event.getEventDate(), 1);
 
         if (PUBLISH_EVENT.equals(request.getStateAction())) {
             if (event.getEventState().equals(PENDING)) {
-                event = eventMapper.toUpdatedAdminEvent(event, request, category, location);
+                event = eventMapper.toUpdatedAdminEvent(event, request, category);
                 event.setPublishedOn(LocalDateTime.now());
                 event.setEventState(PUBLISHED);
             } else {
@@ -110,7 +112,7 @@ public class EventServiceImpl implements EventService {
             }
         } else if (REJECT_EVENT.equals(request.getStateAction())) {
             if (!event.getEventState().equals(PUBLISHED)) {
-                event = eventMapper.toUpdatedAdminEvent(event, request, category, location);
+                event = eventMapper.toUpdatedAdminEvent(event, request, category);
                 event.setEventState(CANCELED);
             } else {
                 getExceptionIfEventPublished(eventId);

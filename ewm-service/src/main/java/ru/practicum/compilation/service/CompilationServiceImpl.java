@@ -76,8 +76,7 @@ public class CompilationServiceImpl implements CompilationService {
         List<Compilation> compilations;
 
         if (pinned != null) {
-            compilations = compilationRepository.findAllByPinned(pinned, pageable)
-                    .orElse(new ArrayList<>());
+            compilations = compilationRepository.findAllByPinned(pinned, pageable);
         } else {
             compilations = compilationRepository.findAll(pageable).getContent();
         }

@@ -3,7 +3,7 @@ package ru.practicum.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
-import ru.practicum.location.model.Location;
+import ru.practicum.location.dto.LocationDto;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -31,7 +31,7 @@ public class NewEventDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     @NotNull
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     @Min(0)
     private Integer participantLimit;

@@ -37,7 +37,7 @@ public interface EventMapper {
     @Mapping(target = "initiator",
             source = "initiator")
     @Mapping(target = "location",
-            source = "location")
+            expression = "java(locationMapper.toLocation(newEventDto.getLocation()))")
     @Mapping(target = "paid",
             expression = "java(newEventDto.getPaid() != null ? newEventDto.getPaid() : false)")
     @Mapping(target = "participantLimit",
@@ -50,7 +50,7 @@ public interface EventMapper {
             source = "newEventDto.title")
     @Mapping(target = "views",
             expression = "java(0L)")
-    Event toEvent(NewEventDto newEventDto, Category category, User initiator, Location location);
+    Event toEvent(NewEventDto newEventDto, Category category, User initiator);
 
     @Mapping(target = "id",
             source = "oldEvent.id")
@@ -69,7 +69,8 @@ public interface EventMapper {
     @Mapping(target = "initiator",
             source = "oldEvent.initiator")
     @Mapping(target = "location",
-            expression = "java(location != null ? location : oldEvent.getLocation())")
+            expression = "java(request.getLocation() != null" +
+                    " ? locationMapper.toLocation(request.getLocation()) : oldEvent.getLocation())")
     @Mapping(target = "paid",
             expression = "java(request.getPaid() != null ? request.getPaid() : oldEvent.getPaid())")
     @Mapping(target = "participantLimit",
@@ -87,7 +88,7 @@ public interface EventMapper {
             expression = "java(request.getTitle() != null ? request.getTitle() : oldEvent.getTitle())")
     @Mapping(target = "views",
             source = "oldEvent.views")
-    Event toUpdatedOwnerEvent(Event oldEvent, EventDtoUpdatedUser request, Category categoryNew, Location location);
+    Event toUpdatedOwnerEvent(Event oldEvent, EventDtoUpdatedUser request, Category categoryNew);
 
     @Mapping(target = "id",
             source = "oldEvent.id")
@@ -106,7 +107,8 @@ public interface EventMapper {
     @Mapping(target = "initiator",
             source = "oldEvent.initiator")
     @Mapping(target = "location",
-            expression = "java(location != null ? location : oldEvent.getLocation())")
+            expression = "java(request.getLocation() != null" +
+                    " ? locationMapper.toLocation(request.getLocation()) : oldEvent.getLocation())")
     @Mapping(target = "paid",
             expression = "java(request.getPaid() != null ? request.getPaid() : oldEvent.getPaid())")
     @Mapping(target = "participantLimit",
@@ -124,7 +126,7 @@ public interface EventMapper {
             expression = "java(request.getTitle() != null ? request.getTitle() : oldEvent.getTitle())")
     @Mapping(target = "views",
             source = "oldEvent.views")
-    Event toUpdatedAdminEvent(Event oldEvent, EventDtoUpdatedAdmin request, Category categoryNew, Location location);
+    Event toUpdatedAdminEvent(Event oldEvent, EventDtoUpdatedAdmin request, Category categoryNew);
 
     @Mapping(target = "category",
             expression = "java(categoryMapper.toCategoryDto(event.getCategory()))")
