@@ -13,7 +13,6 @@ services:
       - SPRING_DATASOURCE_USERNAME=stats
       - SPRING_DATASOURCE_PASSWORD=stats
       - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
-      - STATS_SERVER_URL=http://localhost:9090
 
   stats-db:
     image: postgres:13.7-alpine
@@ -32,15 +31,14 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - stats-server
       - ewm-db
+      - stats-server
     environment:
       - STATS_SERVER_URL=http://stats-server:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_db
       - SPRING_DATASOURCE_USERNAME=ewm
       - SPRING_DATASOURCE_PASSWORD=ewm
       - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
-      - EWM_SERVICE_URL=http://localhost:8080
 
   ewm-db:
     image: postgres:13.7-alpine
